@@ -1,4 +1,4 @@
-name: Build Android APK (FULL FIXED)
+name: Build APK FIXED
 
 on:
   push:
@@ -10,65 +10,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # =========================
-    # 1. Checkout code
-    # =========================
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    # =========================
-    # 2. Setup Python
-    # =========================
-    - name: Set up Python
+    - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.10"
 
-    # =========================
-    # 3. Install system packages
-    # =========================
-    - name: Install system dependencies
+    - name: Install dependencies
       run: |
         sudo apt update
         sudo apt install -y git zip unzip wget curl openjdk-17-jdk
 
-    # =========================
-    # 4. Install Python tools
-    # =========================
-    - name: Install Buildozer
-      run: |
         python -m pip install --upgrade pip
         pip install cython buildozer
 
     # =========================
-    # 5. ANDROID SDK FIX (IMPORTANT 🔥)
+    # FIX SDK PROPERLY (IMPORTANT)
     # =========================
-    - name: Install Android SDK + Fix Licenses
+    - name: Setup Android SDK Proper Fix
       run: |
-        export ANDROID_SDK_ROOT=$HOME/android-sdk
+        export ANDROID_HOME=$HOME/android-sdk
+        export ANDROID_SDK_ROOT=$ANDROID_HOME
 
-        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-        cd $ANDROID_SDK_ROOT
+        mkdir -p $ANDROID_HOME
+        cd $HOME
 
         wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-        unzip commandlinetools-*.zip
+        unzip commandlinetools-*.zip -d $ANDROID_HOME
 
-        mkdir -p cmdline-tools/latest
-        mv cmdline-tools/* cmdline-tools/latest/ || true
+        mkdir -p $ANDROID_HOME/cmdline-tools/latest
+        mv $ANDROID_HOME/cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/ || true
 
-        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
+        export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
 
-        # 🔥 ACCEPT ALL LICENSES (FIX YOUR ERROR)
-        yes | sdkmanager --licenses || true
+        yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses || true
 
-        # 🔥 INSTALL STABLE BUILD TOOLS (NOT 37!)
-        sdkmanager "platform-tools" \
-                   "platforms;android-33" \
-                   "build-tools;34.0.0"
+        sdkmanager --sdk_root=$ANDROID_HOME \
+          "platform-tools" \
+          "platforms;android-33" \
+          "build-tools;34.0.0"
 
-    # =========================
-    # 6. Build APK
-    # =========================
-    - name: Build APK with Buildozer
+    - name: Build APK
       run: |
         buildozer android debug
