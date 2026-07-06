@@ -1,28 +1,23 @@
-name: Build APK
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
-
-    - name: Install dependencies
+- name: Install Android SDK + Accept Licenses FIX
       run: |
         sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk
-        pip install cython buildozer
+        sudo apt install -y wget unzip
 
-    - name: Build APK
-      run: buildozer android debug
+        mkdir -p $HOME/android-sdk
+        export ANDROID_SDK_ROOT=$HOME/android-sdk
+
+        cd $HOME
+
+        wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+        unzip commandlinetools-*.zip -d $ANDROID_SDK_ROOT
+
+        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
+        mv $ANDROID_SDK_ROOT/cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ || true
+
+        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
+
+        yes | sdkmanager --licenses || true
+
+        sdkmanager "platform-tools" \
+                   "platforms;android-33" \
+                   "build-tools;34.0.0"
