@@ -1,8 +1,8 @@
 from kivy.app import App
 from kivy.uix.label import Label
 
-class OroExam(App):
+class MyApp(App):
     def build(self):
-        return Label(text="Oro Exam System Started")
+        return Label(text="Hello Buildozer!")
 
-OroExam().run()
+MyApp().run()
