@@ -1,4 +1,4 @@
-name: Build APK FIXED
+name: Build APK FIX
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Install dependencies
+    - name: Install system deps
       run: |
         sudo apt update
         sudo apt install -y git zip unzip wget curl openjdk-17-jdk
@@ -25,10 +25,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install cython buildozer
 
-    # =========================
-    # FIX SDK PROPERLY (IMPORTANT)
-    # =========================
-    - name: Setup Android SDK Proper Fix
+    - name: Setup Android SDK FIXED
       run: |
         export ANDROID_HOME=$HOME/android-sdk
         export ANDROID_SDK_ROOT=$ANDROID_HOME
